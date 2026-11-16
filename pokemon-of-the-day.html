@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#fff4d5">
+  <title>Pokéday — Pokémon of the Day</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #26334b;
+      --muted: #68758a;
+      --paper: #fffdf6;
+      --yellow: #ffd84d;
+      --coral: #ff765e;
+      --blue: #70c8e8;
+      --line: #26334b;
+      --shadow: 0 7px 0 rgba(38, 51, 75, .13);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      padding: 28px 18px 40px;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 8% 12%, rgba(255, 216, 77, .35) 0 5px, transparent 6px),
+        radial-gradient(circle at 92% 20%, rgba(112, 200, 232, .35) 0 7px, transparent 8px),
+        #fff4d5;
+      font-family: "Trebuchet MS", "Arial Rounded MT Bold", Arial, sans-serif;
+    }
+
+    button, input { font: inherit; }
+    button { color: inherit; }
+
+    .page { width: min(100%, 900px); margin: 0 auto; }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.15rem;
+      font-weight: 900;
+      letter-spacing: -.04em;
+    }
+
+    .brand-ball {
+      display: grid;
+      width: 44px;
+      height: 44px;
+      place-items: center;
+      border: 3px solid var(--line);
+      border-radius: 50%;
+      background: linear-gradient(#ff765e 0 46%, var(--line) 46% 54%, white 54%);
+      box-shadow: 0 3px 0 rgba(38, 51, 75, .16);
+      font-size: 1.25rem;
+    }
+
+    .today-pill {
+      padding: 9px 14px;
+      border: 2px solid var(--line);
+      border-radius: 999px;
+      background: var(--yellow);
+      box-shadow: 0 3px 0 var(--line);
+      font-size: .79rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+    }
+
+    .intro { margin: 0 auto 22px; text-align: center; }
+    .eyebrow {
+      margin: 0 0 5px;
+      color: #d75c49;
+      font-size: .78rem;
+      font-weight: 900;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2.15rem, 7vw, 4.2rem);
+      line-height: .98;
+      letter-spacing: -.065em;
+    }
+
+    .intro p:last-child {
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    .card {
+      overflow: hidden;
+      border: 3px solid var(--line);
+      border-radius: 27px;
+      background: var(--paper);
+      box-shadow: 0 9px 0 var(--line);
+    }
+
+    .date-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 16px 20px;
+      border-bottom: 3px solid var(--line);
+      background: #e9f8ff;
+    }
+
+    .date-label {
+      min-width: 0;
+      text-align: center;
+      font-size: .98rem;
+      font-weight: 900;
+    }
+
+    .date-actions { display: flex; align-items: center; gap: 9px; }
+
+    .present-button {
+      min-height: 42px;
+      padding: 8px 12px;
+      border: 2px solid var(--line);
+      border-radius: 12px;
+      background: var(--yellow);
+      box-shadow: 0 3px 0 var(--line);
+      cursor: pointer;
+      font-size: .78rem;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .present-button:hover:not(:disabled) { transform: translateY(2px); box-shadow: 0 1px 0 var(--line); }
+    .present-button:disabled { display: none; }
+
+    .nav-button {
+      display: grid;
+      flex: 0 0 42px;
+      width: 42px;
+      height: 42px;
+      place-items: center;
+      border: 2px solid var(--line);
+      border-radius: 14px;
+      background: white;
+      box-shadow: 0 3px 0 var(--line);
+      cursor: pointer;
+      font-size: 1.15rem;
+      font-weight: 900;
+      transition: transform .12s, box-shadow .12s;
+    }
+
+    .nav-button:hover:not(:disabled) { transform: translateY(2px); box-shadow: 0 1px 0 var(--line); }
+    .nav-button:disabled { opacity: .42; cursor: not-allowed; }
+
+    .pokemon-content {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      align-items: center;
+      gap: 24px;
+      min-height: 340px;
+      padding: 28px clamp(18px, 5vw, 48px);
+    }
+
+    .art-stage {
+      position: relative;
+      display: grid;
+      min-height: 250px;
+      place-items: center;
+      border: 3px solid var(--line);
+      border-radius: 25px;
+      background:
+        radial-gradient(ellipse at 50% 83%, rgba(38, 51, 75, .13) 0 19%, transparent 20%),
+        radial-gradient(circle at 20% 20%, #fff 0 4px, transparent 5px),
+        radial-gradient(circle at 78% 27%, #fff 0 5px, transparent 6px),
+        #bdeafa;
+    }
+
+    .sparkle { position: absolute; color: white; font-size: 1.55rem; }
+    .sparkle.one { top: 24px; left: 25px; transform: rotate(-12deg); }
+    .sparkle.two { right: 24px; bottom: 35px; font-size: 1.2rem; }
+
+    .pokemon-image {
+      z-index: 1;
+      width: min(90%, 250px);
+      height: 230px;
+      object-fit: contain;
+      image-rendering: pixelated;
+      filter: drop-shadow(0 7px 2px rgba(38, 51, 75, .12));
+    }
+
+    .pokemon-info { min-width: 0; }
+    .dex-number {
+      display: inline-block;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: .82rem;
+      font-weight: 900;
+      letter-spacing: .08em;
+    }
+
+    h2 {
+      margin: 0 0 14px;
+      overflow-wrap: anywhere;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      line-height: .98;
+      letter-spacing: -.06em;
+      text-transform: capitalize;
+    }
+
+    .types { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 21px; }
+    .type {
+      padding: 7px 13px;
+      border: 2px solid var(--line);
+      border-radius: 999px;
+      background: var(--yellow);
+      font-size: .78rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+    .type:nth-child(2) { background: #ffc9b8; }
+
+    .stats { display: flex; flex-wrap: wrap; gap: 10px; }
+    .stat {
+      min-width: 93px;
+      padding: 10px 12px;
+      border: 2px dashed #9ba8b7;
+      border-radius: 13px;
+    }
+    .stat-label {
+      display: block;
+      margin-bottom: 3px;
+      color: var(--muted);
+      font-size: .68rem;
+      font-weight: 900;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .stat-value { font-size: .94rem; font-weight: 900; }
+
+    .loading, .error {
+      grid-column: 1 / -1;
+      padding: 52px 12px;
+      text-align: center;
+      font-weight: 800;
+    }
+    .loading { color: var(--muted); }
+    .error { color: #b83d32; }
+    .retry {
+      display: block;
+      margin: 14px auto 0;
+      padding: 9px 15px;
+      border: 2px solid var(--line);
+      border-radius: 12px;
+      background: var(--yellow);
+      box-shadow: 0 3px 0 var(--line);
+      cursor: pointer;
+      font-weight: 900;
+    }
+
+    .birthday {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 20px;
+      margin-top: 28px;
+      padding: 22px clamp(18px, 4vw, 32px);
+      border: 3px solid var(--line);
+      border-radius: 24px;
+      background: #fff;
+      box-shadow: var(--shadow);
+    }
+
+    .birthday h3 { margin: 0 0 5px; font-size: 1.22rem; letter-spacing: -.03em; }
+    .birthday p { margin: 0; color: var(--muted); font-size: .9rem; line-height: 1.45; }
+    .birthday-form { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 9px; }
+    input[type="date"], input[type="search"] {
+      min-height: 44px;
+      padding: 8px 10px;
+      border: 2px solid var(--line);
+      border-radius: 12px;
+      background: var(--paper);
+      color: var(--ink);
+      font-weight: 700;
+    }
+    .birthday-button {
+      min-height: 44px;
+      padding: 9px 15px;
+      border: 2px solid var(--line);
+      border-radius: 12px;
+      background: var(--coral);
+      box-shadow: 0 3px 0 var(--line);
+      cursor: pointer;
+      font-weight: 900;
+    }
+    .birthday-button:hover { transform: translateY(1px); box-shadow: 0 2px 0 var(--line); }
+    .birthday-message { grid-column: 1 / -1; color: #b83d32 !important; font-weight: 800; }
+    input[type="search"] { width: 210px; max-width: 100%; }
+    .search-message { grid-column: 1 / -1; }
+    .birthday .search-message.is-error { color: #b83d32; font-weight: 800; }
+
+    footer {
+      margin-top: 22px;
+      color: var(--muted);
+      font-size: .78rem;
+      line-height: 1.5;
+      text-align: center;
+    }
+    footer a { color: #355a9b; font-weight: 800; }
+    button:focus-visible, input:focus-visible, a:focus-visible {
+      outline: 3px solid #126ba0;
+      outline-offset: 3px;
+    }
+
+    @media (max-width: 650px) {
+      body { padding: 19px 14px 30px; }
+      .today-pill { padding: 8px 10px; font-size: .68rem; }
+      .pokemon-content { grid-template-columns: 1fr; gap: 20px; padding: 20px; }
+      .art-stage { min-height: 230px; }
+      .pokemon-image { height: 205px; }
+      .pokemon-info { text-align: center; }
+      .types, .stats { justify-content: center; }
+      .date-actions { gap: 6px; }
+      .present-button { min-height: 38px; padding: 6px 9px; font-size: .7rem; }
+      .birthday { grid-template-columns: 1fr; text-align: center; }
+      .birthday-form { justify-content: center; }
+    }
+
+    @media (max-width: 380px) {
+      header { align-items: flex-start; }
+      .brand { font-size: 1rem; }
+      .date-bar { padding: 12px; }
+      .date-label { font-size: .84rem; }
+      .birthday-form { display: grid; grid-template-columns: 1fr; }
+      .birthday-form > * { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <div class="brand"><span class="brand-ball" aria-hidden="true">✦</span><span>POKÉDAY</span></div>
+      <span class="today-pill">A new 'mon every day!</span>
+    </header>
+
+    <section class="intro" aria-labelledby="page-title">
+      <p class="eyebrow">Your daily discovery</p>
+      <h1 id="page-title">Who's that Pokémon?</h1>
+      <p>A little Pokémon surprise, picked just for the day.</p>
+    </section>
+
+    <section class="card" aria-label="Pokémon of the day">
+      <div class="date-bar">
+        <button class="nav-button" id="previous-day" type="button" aria-label="Show previous day">←</button>
+        <div class="date-label" id="date-label" aria-live="polite"></div>
+        <div class="date-actions">
+          <button class="present-button" id="back-to-present" type="button">Back to present</button>
+          <button class="nav-button" id="next-day" type="button" aria-label="Show next day">→</button>
+        </div>
+      </div>
+      <div class="pokemon-content" id="pokemon-content" aria-live="polite" aria-busy="false"></div>
+    </section>
+
+    <section class="birthday" aria-labelledby="birthday-title">
+      <div>
+        <h3 id="birthday-title">Find your birthday Pokémon 🎂</h3>
+        <p>Enter your birthday and meet the Pokémon that was waiting for you.</p>
+      </div>
+      <form class="birthday-form" id="birthday-form">
+        <label for="birthday-date" class="visually-hidden">Your birthday</label>
+        <input id="birthday-date" type="date" required>
+        <button class="birthday-button" type="submit">Find mine!</button>
+      </form>
+      <p class="birthday-message" id="birthday-message" role="status" hidden></p>
+    </section>
+
+    <section class="birthday" aria-labelledby="search-title">
+      <div>
+        <h3 id="search-title">When was that Pokémon?</h3>
+        <p>Search by name or Pokédex number to find its most recent day.
+          Only today and past dates are shown.</p>
+      </div>
+      <form class="birthday-form" id="search-form" role="search">
+        <label for="pokemon-search" class="visually-hidden">Pokémon name or Pokédex number</label>
+        <input id="pokemon-search" type="search" placeholder="e.g. ditto or 132" required maxlength="100">
+        <button class="birthday-button" type="submit">Find day!</button>
+      </form>
+      <p class="search-message" id="search-message" role="status" hidden></p>
+    </section>
+
+    <footer>
+      Pokémon data and sprites provided by
+      <a href="https://pokeapi.co/" target="_blank" rel="noopener noreferrer">PokéAPI</a>.
+      Daily picks are based on the UTC calendar date. Future picks stay secret until their day arrives.
+    </footer>
+  </main>
+
+  <style>
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+  </style>
+
+  <script>
+    "use strict";
+
+    const TOTAL_POKEMON = 1025;
+    const DAILY_STEP = 37;
+    const DAY_MS = 24 * 60 * 60 * 1000;
+    const DITTO_API_URL = "https://pokeapi.co/api/v2/pokemon/ditto";
+    const API_URL = "https://pokeapi.co/api/v2/pokemon/";
+    const content = document.getElementById("pokemon-content");
+    const dateLabel = document.getElementById("date-label");
+    const previousButton = document.getElementById("previous-day");
+    const nextButton = document.getElementById("next-day");
+    const presentButton = document.getElementById("back-to-present");
+    const birthdayForm = document.getElementById("birthday-form");
+    const birthdayInput = document.getElementById("birthday-date");
+    const birthdayMessage = document.getElementById("birthday-message");
+    const searchForm = document.getElementById("search-form");
+    const searchInput = document.getElementById("pokemon-search");
+    const searchMessage = document.getElementById("search-message");
+    const today = new Date();
+    const todayKey = dateKey(today);
+    let displayedDate = new Date(`${todayKey}T00:00:00Z`);
+    let requestNumber = 0;
+    let searchRequestNumber = 0;
+
+    birthdayInput.max = todayKey;
+
+    function dateKey(date) {
+      return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, "0")}-${String(date.getUTCDate()).padStart(2, "0")}`;
+    }
+
+    function dateFromKey(key) {
+      return new Date(`${key}T00:00:00Z`);
+    }
+
+    function pokemonIdForDate(date) {
+      const dayNumber = Math.floor(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()) / DAY_MS);
+      return ((dayNumber * DAILY_STEP) % TOTAL_POKEMON) + 1;
+    }
+
+    function formatDate(date) {
+      return new Intl.DateTimeFormat(undefined, {
+        weekday: "long", year: "numeric", month: "long", day: "numeric", timeZone: "UTC"
+      }).format(date);
+    }
+
+    function mostRecentDateForPokemon(id) {
+      const date = dateFromKey(todayKey);
+      // The daily cycle covers all 1025 IDs before repeating.
+      for (let offset = 0; offset < TOTAL_POKEMON; offset++) {
+        if (pokemonIdForDate(date) === id) return date;
+        date.setUTCDate(date.getUTCDate() - 1);
+      }
+      throw new Error(`No past date found for Pokémon ${id}`);
+    }
+
+    function setSearchMessage(message, isError = false) {
+      searchMessage.textContent = message;
+      searchMessage.classList.toggle("is-error", isError);
+      searchMessage.hidden = false;
+    }
+
+    function updateNavigation() {
+      dateLabel.textContent = formatDate(displayedDate);
+      previousButton.disabled = false;
+      nextButton.disabled = dateKey(displayedDate) >= todayKey;
+      presentButton.disabled = dateKey(displayedDate) >= todayKey;
+    }
+
+    function titleForDate(date) {
+      const key = dateKey(date);
+      if (key === todayKey) return "TODAY'S POKÉMON";
+      const yesterday = new Date(`${todayKey}T00:00:00Z`);
+      yesterday.setUTCDate(yesterday.getUTCDate() - 1);
+      if (key === dateKey(yesterday)) return "YESTERDAY'S POKÉMON";
+      return "POKÉMON OF THE DAY";
+    }
+
+    async function fetchPokemon(id) {
+      const url = id === 132 ? DITTO_API_URL : `${API_URL}${id}`;
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`PokéAPI responded with ${response.status}`);
+      return response.json();
+    }
+
+    function renderPokemon(pokemon, label) {
+      const imageUrl = pokemon.sprites.other?.["official-artwork"]?.front_default
+        || pokemon.sprites.front_default
+        || "";
+      const types = pokemon.types.map(({ type }) => `<span class="type">${escapeHtml(type.name)}</span>`).join("");
+      const abilities = pokemon.abilities.slice(0, 2).map(({ ability }) => ability.name.replaceAll("-", " ")).join(", ");
+
+      content.innerHTML = `
+        <div class="art-stage">
+          <span class="sparkle one" aria-hidden="true">✦</span>
+          <span class="sparkle two" aria-hidden="true">✧</span>
+          ${imageUrl
+            ? `<img class="pokemon-image" src="${escapeHtml(imageUrl)}" alt="${escapeHtml(pokemon.name)}" />`
+            : `<div class="pokemon-image" role="img" aria-label="${escapeHtml(pokemon.name)}">✨</div>`}
+        </div>
+        <div class="pokemon-info">
+          <span class="dex-number">${label} · #${String(pokemon.id).padStart(4, "0")}</span>
+          <h2>${escapeHtml(pokemon.name)}</h2>
+          <div class="types" aria-label="Types">${types}</div>
+          <div class="stats">
+            <div class="stat"><span class="stat-label">Height</span><span class="stat-value">${(pokemon.height / 10).toFixed(1)} m</span></div>
+            <div class="stat"><span class="stat-label">Weight</span><span class="stat-value">${(pokemon.weight / 10).toFixed(1)} kg</span></div>
+            <div class="stat"><span class="stat-label">Ability</span><span class="stat-value">${escapeHtml(abilities || "Unknown")}</span></div>
+          </div>
+        </div>`;
+      const image = content.querySelector(".pokemon-image");
+      if (image && image.tagName === "IMG") {
+        image.addEventListener("error", () => {
+          image.src = pokemon.sprites.front_default || "";
+          if (!pokemon.sprites.front_default) image.remove();
+        }, { once: true });
+      }
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, (character) => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+      })[character]);
+    }
+
+    async function showPokemon(date, label = titleForDate(date), loadedPokemon = null) {
+      ++searchRequestNumber;
+      searchMessage.hidden = true;
+      searchForm.setAttribute("aria-busy", "false");
+      displayedDate = date;
+      updateNavigation();
+      const thisRequest = ++requestNumber;
+      content.setAttribute("aria-busy", "true");
+      content.innerHTML = '<div class="loading">Finding your Pokémon… ✨</div>';
+      try {
+        const pokemon = loadedPokemon || await fetchPokemon(pokemonIdForDate(date));
+        if (thisRequest !== requestNumber) return;
+        renderPokemon(pokemon, label);
+      } catch (error) {
+        if (thisRequest !== requestNumber) return;
+        console.error("Could not load Pokémon from PokéAPI:", error);
+        content.innerHTML = `
+          <div class="error">
+            We couldn't reach the PokéAPI just now. Check your connection and try again.
+            <button class="retry" id="retry-load" type="button">Try again</button>
+          </div>`;
+        document.getElementById("retry-load").addEventListener("click", () => showPokemon(displayedDate));
+      } finally {
+        if (thisRequest === requestNumber) content.setAttribute("aria-busy", "false");
+      }
+    }
+
+    previousButton.addEventListener("click", () => {
+      const previous = new Date(displayedDate);
+      previous.setUTCDate(previous.getUTCDate() - 1);
+      showPokemon(previous);
+    });
+
+    nextButton.addEventListener("click", () => {
+      if (dateKey(displayedDate) >= todayKey) return;
+      const next = new Date(displayedDate);
+      next.setUTCDate(next.getUTCDate() + 1);
+      showPokemon(next);
+    });
+
+    presentButton.addEventListener("click", () => {
+      birthdayMessage.hidden = true;
+      birthdayInput.value = "";
+      showPokemon(dateFromKey(todayKey));
+    });
+
+    birthdayForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const key = birthdayInput.value;
+      if (!key) return;
+      const birthday = dateFromKey(key);
+      if (Number.isNaN(birthday.getTime()) || key > todayKey) {
+        birthdayMessage.textContent = "Choose a birthday that is today or earlier.";
+        birthdayMessage.hidden = false;
+        return;
+      }
+      birthdayMessage.hidden = true;
+      showPokemon(birthday, "YOUR BIRTHDAY POKÉMON");
+      document.querySelector(".card").scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+
+    searchForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const thisSearch = ++searchRequestNumber;
+      const query = searchInput.value.trim().toLowerCase().replace(/\s+/g, "-");
+      if (!query) {
+        searchForm.setAttribute("aria-busy", "false");
+        setSearchMessage("Enter a Pokémon name or Pokédex number.", true);
+        return;
+      }
+      searchForm.setAttribute("aria-busy", "true");
+      setSearchMessage("Looking up that Pokémon...");
+      try {
+        let response = await fetch(`${API_URL}${encodeURIComponent(query)}`);
+        if (thisSearch !== searchRequestNumber) return;
+        // Some base names (such as morpeko) use a named default form in /pokemon.
+        if (response.status === 404) {
+          const speciesResponse = await fetch(`https://pokeapi.co/api/v2/pokemon-species/${encodeURIComponent(query)}`);
+          if (thisSearch !== searchRequestNumber) return;
+          if (speciesResponse.status !== 404) {
+            if (!speciesResponse.ok) throw new Error(`PokéAPI responded with ${speciesResponse.status}`);
+            const species = await speciesResponse.json();
+            if (thisSearch !== searchRequestNumber) return;
+            const defaultVariety = species.varieties.find((variety) => variety.is_default);
+            if (!defaultVariety) throw new Error("PokéAPI did not provide a default Pokémon form");
+            response = await fetch(`${API_URL}${encodeURIComponent(defaultVariety.pokemon.name)}`);
+          }
+        }
+        if (thisSearch !== searchRequestNumber) return;
+        if (response.status === 404) {
+          setSearchMessage("No Pokémon found. Check the spelling or try its Pokédex number.", true);
+          return;
+        }
+        if (!response.ok) throw new Error(`PokéAPI responded with ${response.status}`);
+        const pokemon = await response.json();
+        if (thisSearch !== searchRequestNumber) return;
+        if (!Number.isInteger(pokemon.id) || pokemon.id < 1 || pokemon.id > TOTAL_POKEMON) {
+          setSearchMessage("This form isn't part of the daily picks. Search for the Pokémon's base name or a number from 1 to 1025.", true);
+          return;
+        }
+        const date = mostRecentDateForPokemon(pokemon.id);
+        birthdayMessage.hidden = true;
+        showPokemon(date, titleForDate(date), pokemon);
+        setSearchMessage(`${pokemon.name} most recently appeared on ${formatDate(date)}. Daily picks repeat every ${TOTAL_POKEMON} days.`);
+        document.querySelector(".card").scrollIntoView({ behavior: "smooth", block: "center" });
+      } catch (error) {
+        if (thisSearch !== searchRequestNumber) return;
+        console.error("Could not search Pokémon from PokéAPI:", error);
+        setSearchMessage("We couldn't reach PokéAPI. Check your connection and search again.", true);
+      } finally {
+        if (thisSearch === searchRequestNumber) searchForm.setAttribute("aria-busy", "false");
+      }
+    });
+
+    showPokemon(displayedDate);
+  </script>
+</body>
+</html>
